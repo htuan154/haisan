@@ -4,6 +4,7 @@
   "description": "",
   "main": "backend/src/server.js",
   "scripts": {
+    "start": "node backend/src/server.js",
     "dev:backend": "node backend/src/server.js",
     "test": "node --test backend/tests/*.test.js"
   },

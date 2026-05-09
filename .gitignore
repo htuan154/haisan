@@ -3,3 +3,5 @@
 .env.*
 .agents/skills/
 skills-lock.json
+.env
+.env.local
