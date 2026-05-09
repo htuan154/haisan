@@ -2,15 +2,20 @@
   "name": "haisan",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "backend/src/server.js",
   "scripts": {
-    "test": "node --test backend/tests/supabase.test.js"
+    "dev:backend": "node backend/src/server.js",
+    "test": "node --test backend/tests/*.test.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@supabase/supabase-js": "^2.105.3"
+    "@supabase/supabase-js": "^2.105.3",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2"
   }
 }

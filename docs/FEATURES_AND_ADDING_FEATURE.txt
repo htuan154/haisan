@@ -1,0 +1,75 @@
+Tổng quan features & bảng hiện có
+
+1) Bảng (tables) hiện trong dự án (tên theo `table` trong resource metadata):
+- accounts
+- categories
+- products
+- purchase_orders
+- import_batches
+- coupons
+- orders
+- order_details
+- chat_rooms
+- messages
+- return_requests
+
+Tổng: 11 bảng (nếu bạn có thêm bảng migration SQL ở nơi khác, cộng thêm vào danh sách).
+
+2) Chức năng (high-level) đã có sẵn trong backend:
+- Authentication: đăng ký / đăng nhập (service + controller + routes).
+- Generic CRUD resources: mỗi resource trong `backend/src/models/resources` được tự động đăng ký route (list/get/create/update/delete) thông qua factory `createResourceService` + `createResourceController` + `registerResourceRoutes`.
+- Domain modules implemented: `accounts`, `catalog` (categories/products), `inventory` (purchase orders/import batches), `sales` (coupons/orders/order_details), `customerService` (chat_rooms/messages/return_requests).
+- Tests skeleton + unit tests under `backend/tests` (auth-utils.test.js, resources.test.js, supabase.test.js).
+
+3) Nếu bạn muốn "thêm 1 chức năng bất kì" (ví dụ: resource mới hoặc endpoint mới), quy trình recommended:
+
+DB / Schema
+- Tạo migration / SQL: thêm table và enum cần thiết. (Thư mục gợi ý: `backend/src/models/sql/` — nếu dùng Supabase, paste SQL vào Supabase SQL Editor.)
+- Chạy migration trên DB (Supabase SQL Editor hoặc công cụ migration bạn dùng).
+
+Model / Resource metadata
+- Thêm metadata resource vào `backend/src/models/resources/<domain>.js` (theo mẫu các file hiện có). Ví dụ add `reviews`:
+  - khai báo `table: 'reviews'`, `path: '/reviews'`, `requiredFields` và `enumFields` nếu cần.
+- Chạy tests/khởi động dev để đảm bảo metadata load được.
+
+Service / Controller / Route
+- Nếu resource là CRUD chuẩn: không cần viết service/controller thủ công — hệ thống factory đã sẵn.
+- Chỉ cần đảm bảo `registerResourceRoutes` được mount (app tự động scan `backend/src/models/resources/index.js`). Nếu bạn thêm module, export nó từ `backend/src/models/resources/index.js`.
+
+Business logic / Custom endpoints
+- Nếu endpoint có logic phức tạp (ví dụ: checkout, báo cáo, thanh toán):
+  1. Tạo service chuyên biệt trong `backend/src/services/` (ví dụ `checkoutService.js`).
+  2. Tạo controller wrapper trong `backend/src/controllers/` và route trong `backend/src/routes/` (ví dụ `checkoutRoutes.js`).
+  3. Đăng ký route trong `backend/src/app.js` (ví dụ `app.use('/api/checkout', checkoutRoutes)`), hoặc vào router chung nếu thích.
+
+Validation & Tests
+- Reuse `backend/src/models/validation.js` helpers; thêm validation tại controller/service nếu cần.
+- Thêm unit/integration tests trong `backend/tests/`.
+
+Security & RLS
+- Nếu client gọi RPC trực tiếp hoặc supabase auth dùng RLS: cấu hình Row Level Security và policies phù hợp.
+- Hàm SQL nhạy cảm (ví dụ RPC login) nên đánh giá `SECURITY DEFINER` và quyền của role service.
+
+Dev checklist (quick):
+1. Thêm SQL migration và apply trên DB.
+2. Thêm resource metadata file và export trong `backend/src/models/resources/index.js`.
+3. Nếu cần logic custom, tạo service/controller/route.
+4. Thêm/điều chỉnh tests.
+5. Cập nhật docs/README nếu cần.
+6. Chạy `npm test` và `npm run dev` kiểm tra.
+
+4) File liên quan bạn có thể mở nhanh:
+- `backend/src/models/resources` (metadata resources)
+- `backend/src/services` (business services)
+- `backend/src/controllers` (controllers)
+- `backend/src/routes` (route registration)
+- `backend/src/utils/supabase.js` (supabase client helpers)
+
+Muốn mình tự động: tôi có thể
+- (A) tạo template resource mới (metadata + SQL migration stub + tests) cho bạn, hoặc
+- (B) thêm một resource mẫu `reviews` hoàn chỉnh vào codebase (SQL + metadata + route + tests).
+
+Chọn A hoặc B nếu muốn tôi tiếp tục và tôi sẽ tạo file tương ứng trong repo.
+
+---
+Tạo lúc: 2026-05-08
